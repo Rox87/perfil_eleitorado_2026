@@ -113,21 +113,8 @@ class App {
     const regionChips = document.querySelectorAll('.region-chip');
     regionChips.forEach(chip => {
       chip.addEventListener('click', () => {
-        regionChips.forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-
         const region = chip.getAttribute('data-region');
-        this.currentRegion = region;
-
-        if (region === 'all') {
-          this.selectState(null);
-        } else if (region === 'Exterior') {
-          this.selectState('ZZ');
-        } else {
-          // Find first or dominant state in that region
-          this.currentUf = null;
-          this.updateDashboard();
-        }
+        this.selectRegion(region);
       });
     });
 
@@ -141,7 +128,13 @@ class App {
     const stateSelect = document.getElementById('state-select');
     stateSelect?.addEventListener('change', (e) => {
       const val = e.target.value;
-      this.selectState(val === 'BR' ? null : val);
+      if (val === 'BR') {
+        this.selectRegion('all');
+      } else if (val.startsWith('REGION_')) {
+        this.selectRegion(val.replace('REGION_', ''));
+      } else {
+        this.selectState(val);
+      }
     });
 
     // Map metric change selector
@@ -167,15 +160,81 @@ class App {
     const stateSelect = document.getElementById('state-select');
     if (!stateSelect || !this.dataset) return;
 
-    stateSelect.innerHTML = '<option value="BR">🇧🇷 Brasil (Todo o País)</option>';
+    stateSelect.innerHTML = '';
 
-    const states = Object.values(this.dataset.estados).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
-    states.forEach(st => {
-      const opt = document.createElement('option');
-      opt.value = st.sg_uf;
-      opt.innerText = `${st.sg_uf} - ${st.nome}`;
-      stateSelect.appendChild(opt);
-    });
+    // Opção Brasil
+    const optBr = document.createElement('option');
+    optBr.value = 'BR';
+    optBr.innerText = '🇧🇷 Brasil (Todo o País)';
+    stateSelect.appendChild(optBr);
+
+    const isSpecificRegion = this.currentRegion && this.currentRegion !== 'all' && this.currentRegion !== 'Exterior';
+
+    if (isSpecificRegion) {
+      const regData = this.dataset.regioes?.[this.currentRegion];
+      const optReg = document.createElement('option');
+      optReg.value = `REGION_${this.currentRegion}`;
+      optReg.innerText = `📍 Região ${this.currentRegion} (Todos os ${regData?.estados?.length || 0} Estados)`;
+      stateSelect.appendChild(optReg);
+
+      const groupReg = document.createElement('optgroup');
+      groupReg.label = `Estados de ${this.currentRegion}`;
+      const regStates = (regData?.estados || [])
+        .map(uf => this.dataset.estados[uf])
+        .filter(Boolean)
+        .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+      regStates.forEach(st => {
+        const opt = document.createElement('option');
+        opt.value = st.sg_uf;
+        opt.innerText = `${st.sg_uf} - ${st.nome}`;
+        groupReg.appendChild(opt);
+      });
+      stateSelect.appendChild(groupReg);
+
+      const groupOther = document.createElement('optgroup');
+      groupOther.label = 'Outros Estados do Brasil';
+      const otherStates = Object.values(this.dataset.estados)
+        .filter(st => !(regData?.estados || []).includes(st.sg_uf) && st.sg_uf !== 'ZZ')
+        .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+      otherStates.forEach(st => {
+        const opt = document.createElement('option');
+        opt.value = st.sg_uf;
+        opt.innerText = `${st.sg_uf} - ${st.nome} (${st.regiao})`;
+        groupOther.appendChild(opt);
+      });
+      stateSelect.appendChild(groupOther);
+    } else {
+      const states = Object.values(this.dataset.estados)
+        .filter(st => st.sg_uf !== 'ZZ')
+        .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+      states.forEach(st => {
+        const opt = document.createElement('option');
+        opt.value = st.sg_uf;
+        opt.innerText = `${st.sg_uf} - ${st.nome}`;
+        stateSelect.appendChild(opt);
+      });
+
+      if (this.dataset.estados['ZZ']) {
+        const optZZ = document.createElement('option');
+        optZZ.value = 'ZZ';
+        optZZ.innerText = 'ZZ - Exterior (Eleitores no Exterior)';
+        stateSelect.appendChild(optZZ);
+      }
+    }
+
+    // Set dropdown selected value
+    if (this.currentUf) {
+      stateSelect.value = this.currentUf;
+    } else if (isSpecificRegion) {
+      stateSelect.value = `REGION_${this.currentRegion}`;
+    } else if (this.currentRegion === 'Exterior') {
+      stateSelect.value = 'ZZ';
+    } else {
+      stateSelect.value = 'BR';
+    }
   }
 
   // --- Map Initialization ---
@@ -238,6 +297,7 @@ class App {
   }
 
   // --- Table Initialization ---
+  // --- Table Initialization ---
   initTable() {
     this.municipalityTable = new MunicipalityTable({
       containerId: 'table-container',
@@ -245,6 +305,9 @@ class App {
         this.selectState(uf);
         // Switch to Map or Overview tab
         document.querySelector('.view-tab[data-tab="tab-map"]')?.click();
+      },
+      onRegionChange: (region) => {
+        this.selectRegion(region);
       }
     });
 
@@ -258,49 +321,221 @@ class App {
       // Show top municipalities of the selected state
       const stateData = this.dataset.estados[this.currentUf];
       this.municipalityTable.setData(stateData.top_municipios);
+      this.municipalityTable.setRegionFilter('all');
+    } else if (this.currentRegion && this.currentRegion !== 'all') {
+      // Show national top 150 filtered by active region
+      this.municipalityTable.setData(this.dataset.top_municipios);
+      this.municipalityTable.setRegionFilter(this.currentRegion);
     } else {
       // Show national top 150
       this.municipalityTable.setData(this.dataset.top_municipios);
+      this.municipalityTable.setRegionFilter('all');
     }
   }
 
-  // --- State Selection Controller ---
-  selectState(uf) {
-    this.currentUf = uf;
+  // --- Regional Data Aggregator ---
+  getRegionalData(regionName) {
+    if (!this.dataset || !this.dataset.regioes || !this.dataset.regioes[regionName]) {
+      return null;
+    }
+    const reg = this.dataset.regioes[regionName];
+    const stateUfs = reg.estados || [];
+    const states = stateUfs.map(uf => this.dataset.estados[uf]).filter(Boolean);
 
-    // Update Dropdown
-    const stateSelect = document.getElementById('state-select');
-    if (stateSelect) {
-      stateSelect.value = uf || 'BR';
+    // Aggregate age pyramid
+    const piramideMap = {};
+    states.forEach(st => {
+      (st.piramide || []).forEach(p => {
+        if (!piramideMap[p.faixa]) {
+          piramideMap[p.faixa] = { cd_faixa: p.cd_faixa, faixa: p.faixa, tipo: p.tipo, fem: 0, masc: 0, total: 0 };
+        }
+        piramideMap[p.faixa].fem += p.fem || 0;
+        piramideMap[p.faixa].masc += p.masc || 0;
+        piramideMap[p.faixa].total += p.total || 0;
+      });
+    });
+    const piramide = Object.values(piramideMap).sort((a, b) => a.cd_faixa - b.cd_faixa);
+
+    // Aggregate education levels
+    const escMap = {};
+    states.forEach(st => {
+      (st.escolaridade || []).forEach(e => {
+        if (!escMap[e.cd]) escMap[e.cd] = { cd: e.cd, grau: e.grau, total: 0 };
+        escMap[e.cd].total += e.total || 0;
+      });
+    });
+    const escolaridade = Object.values(escMap).sort((a, b) => a.cd - b.cd);
+
+    // Aggregate civil status
+    const civMap = {};
+    states.forEach(st => {
+      (st.estado_civil || []).forEach(c => {
+        if (!civMap[c.cd]) civMap[c.cd] = { cd: c.cd, estado_civil: c.estado_civil, total: 0 };
+        civMap[c.cd].total += c.total || 0;
+      });
+    });
+    const estado_civil = Object.values(civMap).sort((a, b) => a.cd - b.cd);
+
+    // Aggregate race
+    const racaMap = {};
+    states.forEach(st => {
+      (st.raca || []).forEach(r => {
+        if (!racaMap[r.cd]) racaMap[r.cd] = { cd: r.cd, raca: r.raca, total: 0 };
+        racaMap[r.cd].total += r.total || 0;
+      });
+    });
+    const raca = Object.values(racaMap).sort((a, b) => a.cd - b.cd);
+
+    let quilombolas = 0, libras = 0, trans = 0, total_municipios = 0, outro_gen = 0;
+    states.forEach(st => {
+      quilombolas += st.quilombolas || 0;
+      libras += st.libras || 0;
+      trans += st.trans || 0;
+      total_municipios += st.total_municipios || 0;
+      outro_gen += st.outro_gen || 0;
+    });
+
+    const tot = reg.total_eleitores || 1;
+    const pctDeficiencia = reg.pct_deficiencia ?? Number(((reg.deficiencia / tot) * 100).toFixed(2));
+    const pctObrigatorio = Number((100 - (Number(reg.pct_jovens || 0) + Number(reg.pct_idosos || 0))).toFixed(1));
+
+    return {
+      ...reg,
+      nome: `Região ${regionName}`,
+      sg_uf: regionName,
+      isRegion: true,
+      pct_deficiencia: pctDeficiencia,
+      pct_obrigatorio: pctObrigatorio,
+      quilombolas,
+      libras,
+      trans,
+      total_municipios,
+      outro_gen,
+      piramide,
+      escolaridade,
+      estado_civil,
+      raca,
+      arquetipo: {
+        resumo: `Perfil consolidado do eleitorado da Região ${regionName} (${stateUfs.join(', ')})`,
+        genero: reg.pct_fem >= 50 ? `Maioria Feminina (${reg.pct_fem}%)` : `Maioria Masculina (${reg.pct_masc}%)`,
+        faixa_etaria: `Eleitorado ativo predominante (~${pctObrigatorio}% obrigatório)`,
+        escolaridade: 'Ensino Médio e Superior predominantes',
+        estado_civil: 'Solteiro(a) majoritário',
+        biometria_status: `${reg.pct_biometria}% com Biometria`
+      }
+    };
+  }
+
+  getCurrentEntity() {
+    if (!this.dataset) return null;
+    if (this.currentUf && this.dataset.estados[this.currentUf]) {
+      return this.dataset.estados[this.currentUf];
+    }
+    if (this.currentRegion && this.currentRegion !== 'all') {
+      if (this.currentRegion === 'Exterior') {
+        return this.dataset.estados['ZZ'] || this.dataset.brasil;
+      }
+      return this.getRegionalData(this.currentRegion) || this.dataset.brasil;
+    }
+    return this.dataset.brasil;
+  }
+
+  // --- Territorial Selection Controllers ---
+  selectRegion(region) {
+    this.currentRegion = region || 'all';
+    this.currentUf = null;
+
+    if (this.currentRegion === 'Exterior') {
+      this.currentUf = 'ZZ';
     }
 
-    // Update Map
-    this.brazilMap?.selectState(uf, false);
+    // Sync Region Chips
+    document.querySelectorAll('.region-chip').forEach(c => {
+      c.classList.toggle('active', c.getAttribute('data-region') === this.currentRegion);
+    });
+
+    // Sync Map
+    if (this.brazilMap) {
+      if (this.currentRegion === 'all') {
+        this.brazilMap.highlightRegion('all', []);
+        this.brazilMap.selectState(null, false);
+      } else if (this.currentRegion === 'Exterior') {
+        this.brazilMap.highlightRegion('Exterior', []);
+        this.brazilMap.selectState('ZZ', false);
+      } else {
+        const ufs = this.dataset?.regioes?.[this.currentRegion]?.estados || [];
+        this.brazilMap.highlightRegion(this.currentRegion, ufs);
+        this.brazilMap.selectState(null, false);
+      }
+    }
+
+    // Sync Dropdown
+    this.populateStateSelect();
+
+    // Sync Table
+    if (this.municipalityTable) {
+      this.municipalityTable.setRegionFilter(this.currentRegion);
+    }
+
+    // Update Dashboard UI & Charts
+    this.updateDashboard();
+  }
+
+  selectState(uf) {
+    if (!uf || uf === 'BR') {
+      this.selectRegion('all');
+      return;
+    }
+    if (uf.startsWith('REGION_')) {
+      this.selectRegion(uf.replace('REGION_', ''));
+      return;
+    }
+
+    this.currentUf = uf;
+
+    // Detect state's region
+    if (uf === 'ZZ') {
+      this.currentRegion = 'Exterior';
+    } else {
+      const st = this.dataset?.estados?.[uf];
+      if (st && st.regiao) {
+        this.currentRegion = st.regiao;
+      }
+    }
+
+    // Sync Region Chips
+    document.querySelectorAll('.region-chip').forEach(c => {
+      c.classList.toggle('active', c.getAttribute('data-region') === this.currentRegion);
+    });
+
+    // Sync Map
+    if (this.brazilMap) {
+      const ufs = (this.currentRegion && this.currentRegion !== 'all' && this.currentRegion !== 'Exterior')
+        ? (this.dataset?.regioes?.[this.currentRegion]?.estados || [])
+        : [];
+      this.brazilMap.highlightRegion(this.currentRegion, ufs);
+      this.brazilMap.selectState(uf, false);
+    }
+
+    // Sync Dropdown
+    this.populateStateSelect();
+
+    // Sync Table
+    this.updateTableData();
 
     // Update Dashboard UI & Charts
     this.updateDashboard();
   }
 
   resetAllFilters() {
-    this.currentUf = null;
-    this.currentRegion = 'all';
-
-    const stateSelect = document.getElementById('state-select');
-    if (stateSelect) stateSelect.value = 'BR';
-
-    document.querySelectorAll('.region-chip').forEach(c => {
-      c.classList.toggle('active', c.getAttribute('data-region') === 'all');
-    });
-
-    this.brazilMap?.selectState(null, false);
-    this.updateDashboard();
+    this.selectRegion('all');
   }
 
   // --- Core Dashboard UI & Chart Updates ---
   updateDashboard() {
     if (!this.dataset) return;
 
-    const currentEntity = this.currentUf ? this.dataset.estados[this.currentUf] : this.dataset.brasil;
+    const currentEntity = this.getCurrentEntity();
     if (!currentEntity) return;
 
     this.updateHeaderBadges(currentEntity);
@@ -313,17 +548,26 @@ class App {
 
   updateHeaderBadges(entity) {
     const isState = !!this.currentUf;
+    const isRegion = !isState && this.currentRegion && this.currentRegion !== 'all';
     const titleScope = document.getElementById('current-scope-label');
     const badgeNacional = document.getElementById('badge-representatividade');
 
     if (titleScope) {
-      titleScope.innerText = isState ? `${entity.nome} (${entity.sg_uf})` : 'Brasil (Nacional)';
+      if (isState) {
+        titleScope.innerText = `${entity.nome} (${entity.sg_uf})`;
+      } else if (isRegion) {
+        titleScope.innerText = `${entity.nome} (Consolidado)`;
+      } else {
+        titleScope.innerText = 'Brasil (Nacional)';
+      }
     }
 
     if (badgeNacional) {
-      badgeNacional.innerText = isState
-        ? `${entity.pct_nacional}% do Eleitorado Nacional`
-        : '100% Território Nacional';
+      if (isState || isRegion) {
+        badgeNacional.innerText = `${entity.pct_nacional}% do Eleitorado Nacional`;
+      } else {
+        badgeNacional.innerText = '100% Território Nacional';
+      }
     }
   }
 
@@ -332,9 +576,14 @@ class App {
     this.animateCounter('kpi-total-eleitores', entity.total_eleitores);
     const subTotal = document.getElementById('kpi-sub-total');
     if (subTotal) {
-      subTotal.innerText = this.currentUf 
-        ? `${entity.pct_nacional}% do colégio eleitoral brasileiro`
-        : `${this.dataset.metadata.linhas_processadas.toLocaleString('pt-BR')} registros computados`;
+      if (this.currentUf) {
+        subTotal.innerText = `${entity.pct_nacional}% do colégio eleitoral brasileiro`;
+      } else if (this.currentRegion && this.currentRegion !== 'all') {
+        const numEstados = this.dataset.regioes?.[this.currentRegion]?.estados?.length || 0;
+        subTotal.innerText = `${numEstados} estados • ${entity.pct_nacional}% do eleitorado nacional`;
+      } else {
+        subTotal.innerText = `${this.dataset.metadata.linhas_processadas.toLocaleString('pt-BR')} registros computados`;
+      }
     }
 
     // 2. Mulheres vs Homens
@@ -410,7 +659,15 @@ class App {
     const dossierLibras = document.getElementById('dossier-libras');
     const dossierTrans = document.getElementById('dossier-trans');
 
-    if (dossierTitle) dossierTitle.innerText = `${entity.nome} (${entity.sg_uf})`;
+    if (dossierTitle) {
+      if (this.currentUf) {
+        dossierTitle.innerText = `${entity.nome} (${entity.sg_uf})`;
+      } else if (this.currentRegion && this.currentRegion !== 'all') {
+        dossierTitle.innerText = `${entity.nome} (${this.dataset.regioes?.[this.currentRegion]?.estados?.length || 0} Estados)`;
+      } else {
+        dossierTitle.innerText = 'Brasil (Nacional)';
+      }
+    }
     if (dossierMunCount) dossierMunCount.innerText = Number(entity.total_municipios || 0).toLocaleString('pt-BR');
     if (dossierQuilomb) dossierQuilomb.innerText = Number(entity.quilombolas || 0).toLocaleString('pt-BR');
     if (dossierLibras) dossierLibras.innerText = Number(entity.libras || 0).toLocaleString('pt-BR');
@@ -419,7 +676,7 @@ class App {
 
   updateCharts() {
     if (!this.dataset) return;
-    const entity = this.currentUf ? this.dataset.estados[this.currentUf] : this.dataset.brasil;
+    const entity = this.getCurrentEntity();
     if (!entity) return;
 
     // 1. Pyramid
@@ -444,7 +701,7 @@ class App {
 
     // 5. Regional Comparison (National level)
     if (this.dataset.regioes) {
-      this.chartManager.renderRegional('canvas-regional', this.dataset.regioes);
+      this.chartManager.renderRegional('canvas-regional', this.dataset.regioes, this.currentRegion);
     }
   }
 

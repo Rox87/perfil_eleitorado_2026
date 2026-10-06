@@ -348,7 +348,7 @@ export class ChartManager {
   }
 
   // 5. Regional Comparison Horizontal Bar Chart
-  renderRegional(canvasId, regioesData) {
+  renderRegional(canvasId, regioesData, activeRegion = null) {
     const ctx = document.getElementById(canvasId)?.getContext('2d');
     if (!ctx) return;
 
@@ -361,6 +361,28 @@ export class ChartManager {
     const totals = regList.map(r => r.total_eleitores);
     const pcts = regList.map(r => r.pct_nacional);
 
+    const baseColors = {
+      'Sudeste': '#06b6d4',
+      'Nordeste': '#10b981',
+      'Sul': '#3b82f6',
+      'Norte': '#8b5cf6',
+      'Centro-Oeste': '#f59e0b',
+      'Exterior': '#64748b'
+    };
+
+    const bgColors = regList.map(r => {
+      const color = baseColors[r.regiao] || '#06b6d4';
+      if (!activeRegion || activeRegion === 'all') return color;
+      return r.regiao === activeRegion ? color : 'rgba(100, 116, 139, 0.35)';
+    });
+
+    const borderColors = regList.map(r => {
+      if (activeRegion && activeRegion !== 'all' && r.regiao === activeRegion) {
+        return '#38bdf8';
+      }
+      return 'transparent';
+    });
+
     this.charts[canvasId] = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -368,14 +390,9 @@ export class ChartManager {
         datasets: [{
           label: 'Total de Eleitores',
           data: totals,
-          backgroundColor: [
-            '#06b6d4', // Sudeste
-            '#10b981', // Nordeste
-            '#3b82f6', // Sul
-            '#8b5cf6', // Norte
-            '#f59e0b', // Centro-Oeste
-            '#64748b'  // Exterior
-          ],
+          backgroundColor: bgColors,
+          borderColor: borderColors,
+          borderWidth: 2,
           borderRadius: 6,
           barPercentage: 0.7
         }]

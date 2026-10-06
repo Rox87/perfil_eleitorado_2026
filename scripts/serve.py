@@ -62,6 +62,6 @@ if __name__ == '__main__':
     print(f" Variável ENABLE_CACHE: {os.environ.get('ENABLE_CACHE', 'false')} -> {status_msg}")
     print("=" * 60)
 
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
+    socketserver.ThreadingTCPServer.allow_reuse_address = True
+    with socketserver.ThreadingTCPServer(("", PORT), CustomHTTPRequestHandler) as httpd:
         httpd.serve_forever()

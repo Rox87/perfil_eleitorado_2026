@@ -1,9 +1,10 @@
 // Municipality Ranking Table Manager
 
 export class MunicipalityTable {
-  constructor({ containerId, onSelectUf }) {
+  constructor({ containerId, onSelectUf, onRegionChange }) {
     this.container = document.getElementById(containerId);
     this.onSelectUf = onSelectUf;
+    this.onRegionChange = onRegionChange;
     this.allData = [];
     this.filteredData = [];
     this.currentPage = 1;
@@ -97,6 +98,9 @@ export class MunicipalityTable {
       this.regionFilter = e.target.value;
       this.currentPage = 1;
       this.applyFilters();
+      if (this.onRegionChange) {
+        this.onRegionChange(this.regionFilter);
+      }
     });
 
     const pageSizeSelect = document.getElementById('muni-pagesize-select');
@@ -145,6 +149,16 @@ export class MunicipalityTable {
 
   setData(data) {
     this.allData = data || [];
+    this.applyFilters();
+  }
+
+  setRegionFilter(region) {
+    this.regionFilter = region || 'all';
+    const regionSelect = document.getElementById('muni-region-select');
+    if (regionSelect) {
+      regionSelect.value = this.regionFilter;
+    }
+    this.currentPage = 1;
     this.applyFilters();
   }
 

@@ -8,6 +8,8 @@ export class BrazilMap {
     this.getMetricData = getMetricData;
     this.selectedUf = null;
     this.currentMetric = 'total_eleitores';
+    this.activeRegion = 'all';
+    this.regionStateUfs = [];
 
     this.init();
   }
@@ -121,6 +123,25 @@ export class BrazilMap {
     if (triggerCallback && this.onStateSelect) {
       this.onStateSelect(uf);
     }
+  }
+
+  highlightRegion(regionName, stateUfs = []) {
+    this.activeRegion = regionName || 'all';
+    this.regionStateUfs = Array.isArray(stateUfs) ? stateUfs : [];
+
+    const paths = this.container?.querySelectorAll('.state-path') || [];
+    paths.forEach(p => {
+      const uf = p.getAttribute('data-uf');
+      if (!this.activeRegion || this.activeRegion === 'all') {
+        p.classList.remove('region-dimmed', 'region-active');
+      } else if (this.regionStateUfs.includes(uf)) {
+        p.classList.add('region-active');
+        p.classList.remove('region-dimmed');
+      } else {
+        p.classList.add('region-dimmed');
+        p.classList.remove('region-active');
+      }
+    });
   }
 
   handleMouseEnter(e, uf) {
