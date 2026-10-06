@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil do Eleitorado 2026 | TSE Dashboard Interativo</title>
+  <meta name="description" content="Dashboard analítico de última geração sobre o perfil do eleitorado brasileiro para as Eleições 2026, com dados oficiais do Tribunal Superior Eleitoral (TSE).">
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <!-- Google Fonts: Outfit, Plus Jakarta Sans, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Local CSS -->
+  <link rel="stylesheet" href="./css/style.css?v=2026.3">
+
+  <!-- Local Vendor Scripts & Environment Config -->
+  <script src="./env.js"></script>
+  <script src="./vendor/chart.umd.min.js"></script>
+  <script src="./vendor/lucide.min.js"></script>
+</head>
+<body>
+
+  <!-- Ambient Glowing Light Orbs -->
+  <div class="ambient-glow ambient-glow-1"></div>
+  <div class="ambient-glow ambient-glow-2"></div>
+  <div class="ambient-glow ambient-glow-3"></div>
+
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-logo-badge">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1>
+            Eleitorado 2026
+            <span class="badge-tag badge-live">Oficial TSE</span>
+          </h1>
+          <p>
+            Repositório de Dados Eleitorais • 158.745.463 Eleitores Aptos a Votar
+          </p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-export-data" class="btn-action" title="Baixar dados em formato JSON">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Exportar JSON
+        </button>
+
+        <button id="btn-print-report" class="btn-action" title="Imprimir ou Salvar em PDF">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Relatório PDF
+        </button>
+
+        <button id="btn-toggle-theme" class="btn-action" title="Alternar tema">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          Tema
+        </button>
+      </div>
+    </header>
+
+    <!-- Control & Territorial Filter Bar -->
+    <nav class="control-bar">
+      <div class="filter-group">
+        <span class="filter-label">Recorte Territorial:</span>
+        <button class="region-chip active" data-region="all">Brasil Inteiro</button>
+        <button class="region-chip" data-region="Sudeste">Sudeste</button>
+        <button class="region-chip" data-region="Nordeste">Nordeste</button>
+        <button class="region-chip" data-region="Sul">Sul</button>
+        <button class="region-chip" data-region="Norte">Norte</button>
+        <button class="region-chip" data-region="Centro-Oeste">Centro-Oeste</button>
+        <button class="region-chip" data-region="Exterior">Exterior (ZZ)</button>
+      </div>
+
+      <div class="filter-group" style="gap: 12px;">
+        <div class="state-select-wrapper">
+          <select id="state-select" class="state-select">
+            <option value="BR">🇧🇷 Brasil (Todo o País)</option>
+          </select>
+          <div class="select-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+        </div>
+
+        <button id="btn-reset-filters" class="btn-reset">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+          Restaurar Brasil
+        </button>
+      </div>
+    </nav>
+
+    <!-- Scope Indicators Sub-Bar -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding: 0 4px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 0.875rem; color: var(--text-muted);">Visualizando:</span>
+        <strong id="current-scope-label" style="font-size: 1.15rem; color: var(--text-primary); font-family: var(--font-heading);">
+          Brasil (Nacional)
+        </strong>
+      </div>
+      <span id="badge-representatividade" class="badge-tag">100% Território Nacional</span>
+    </div>
+
+    <!-- Hero Metric KPI Grid -->
+    <section class="kpi-grid">
+      <!-- KPI 1: Total Eleitores -->
+      <div class="kpi-card" style="--card-accent: var(--grad-primary);">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Eleitorado Total</span>
+          <div class="kpi-icon-box" style="--icon-bg: rgba(6, 182, 212, 0.15); --icon-color: var(--cyan);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpi-total-eleitores" class="kpi-value">158.745.463</span>
+        </div>
+        <div class="kpi-subtitle">
+          <span id="kpi-sub-total">Aptos em 5.570 municípios e exterior</span>
+        </div>
+        <div class="kpi-progress-bar">
+          <div class="kpi-progress-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- KPI 2: Hegemonia Feminina -->
+      <div class="kpi-card" style="--card-accent: var(--grad-female);">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Maioria Feminina</span>
+          <div class="kpi-icon-box" style="--icon-bg: rgba(244, 63, 94, 0.15); --icon-color: var(--rose);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="5"/><path d="M12 13v8"/><path d="M9 18h6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpi-mulheres-count" class="kpi-value">83.877.126</span>
+          <span id="kpi-mulheres-pct" class="kpi-badge" style="--badge-bg: rgba(244, 63, 94, 0.15); --badge-color: var(--rose);">
+            52.84% Mulheres
+          </span>
+        </div>
+        <div class="kpi-subtitle">
+          <span id="kpi-homens-sub">74.845.001 homens (47.15%)</span>
+        </div>
+        <div class="ratio-bar">
+          <div id="kpi-fill-fem" class="ratio-fill-fem" style="width: 52.8%;"></div>
+          <div id="kpi-fill-masc" class="ratio-fill-masc" style="width: 47.2%;"></div>
+        </div>
+      </div>
+
+      <!-- KPI 3: Biometria Cadastrada -->
+      <div class="kpi-card" style="--card-accent: var(--emerald);">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Cobertura Biométrica</span>
+          <div class="kpi-icon-box" style="--icon-bg: rgba(16, 185, 129, 0.15); --icon-color: var(--emerald);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a10 10 0 0 0-10 10c0 3 1.5 5.5 3 7.5"/><path d="M12 6a6 6 0 0 0-6 6c0 2 1 3.5 2 5"/><path d="M12 10a2 2 0 0 0-2 2c0 1 .5 1.8 1 2.5"/><path d="M17 19.5c1.5-2 3-4.5 3-7.5a10 10 0 0 0-5.5-8.9"/><path d="M16 17c1-1.5 2-3 2-5a6 6 0 0 0-3.3-5.3"/><path d="M13 14.5c.5-.7 1-1.5 1-2.5a2 2 0 0 0-1.1-1.8"/>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpi-biometria-count" class="kpi-value">141.301.540</span>
+          <span id="kpi-biometria-pct" class="kpi-badge" style="--badge-bg: rgba(16, 185, 129, 0.15); --badge-color: var(--emerald);">
+            89.01%
+          </span>
+        </div>
+        <div class="kpi-subtitle">
+          <span>Identificação digital nas urnas</span>
+        </div>
+        <div class="kpi-progress-bar">
+          <div id="kpi-fill-biometria" class="kpi-progress-fill" style="width: 89%; background: var(--emerald);"></div>
+        </div>
+      </div>
+
+      <!-- KPI 4: Voto Facultativo (Jovens vs Idosos) -->
+      <div class="kpi-card" style="--card-accent: var(--amber);">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Voto Facultativo</span>
+          <div class="kpi-icon-box" style="--icon-bg: rgba(245, 158, 11, 0.15); --icon-color: var(--amber);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpi-facultativo-count" class="kpi-value">18.886.159</span>
+          <span id="kpi-facultativo-pct" class="kpi-badge" style="--badge-bg: rgba(245, 158, 11, 0.15); --badge-color: var(--amber);">
+            11.9%
+          </span>
+        </div>
+        <div class="kpi-subtitle">
+          <span id="kpi-facultativo-sub">1,6M jovens (16-17) • 17,2M idosos (70+)</span>
+        </div>
+        <div class="kpi-progress-bar">
+          <div class="kpi-progress-fill" style="width: 11.9%; background: var(--amber);"></div>
+        </div>
+      </div>
+
+      <!-- KPI 5: Inclusão & Cidadania -->
+      <div class="kpi-card" style="--card-accent: var(--violet);">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Inclusão & Acessibilidade</span>
+          <div class="kpi-icon-box" style="--icon-bg: rgba(139, 92, 246, 0.15); --icon-color: var(--violet);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value-row">
+          <span id="kpi-deficiencia-count" class="kpi-value">1.970.165</span>
+        </div>
+        <div class="kpi-subtitle">
+          <span id="kpi-deficiencia-sub">1.24% PCD • 38.472 com nome social</span>
+        </div>
+        <div class="kpi-progress-bar">
+          <div class="kpi-progress-fill" style="width: 25%; background: var(--violet);"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Navigation Tabs -->
+    <div class="view-tabs">
+      <button class="view-tab active" data-tab="tab-map">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+        </svg>
+        Mapa & Território
+      </button>
+
+      <button class="view-tab" data-tab="tab-pyramid">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
+        </svg>
+        Pirâmide Demográfica
+      </button>
+
+      <button class="view-tab" data-tab="tab-education">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        Escolaridade & Instrução
+      </button>
+
+      <button class="view-tab" data-tab="tab-diversity">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+        </svg>
+        Diversidade & Cidadania
+      </button>
+
+      <button class="view-tab" data-tab="tab-archetype">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M6 16c0-1.5 1.5-2 3-2s3 .5 3 2"/><line x1="14" y1="9" x2="18" y2="9"/><line x1="14" y1="13" x2="18" y2="13"/>
+        </svg>
+        Arquétipo do Eleitor
+      </button>
+
+      <button class="view-tab" data-tab="tab-cities">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+        Top Municípios
+      </button>
+
+      <button class="view-tab" data-tab="tab-insights">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        Dossiê de Insights (6)
+      </button>
+    </div>
+
+    <!-- TAB 1: Mapa & Visão Territorial -->
+    <div id="tab-map" class="tab-content active">
+      <div class="map-layout-grid">
+        <!-- Interactive Vector Map -->
+        <div class="map-card">
+          <div class="map-card-header">
+            <div class="map-title-box">
+              <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+                </svg>
+                Mapa Interativo do Colégio Eleitoral
+              </h2>
+              <p>Passe o mouse para ver detalhes do estado ou clique para filtrar os dados em tempo real</p>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="filter-label">Camada:</span>
+              <select id="map-metric-selector" class="map-metric-select">
+                <option value="total_eleitores">Total de Eleitores</option>
+                <option value="pct_biometria">Cobertura Biométrica (%)</option>
+                <option value="pct_fem">Proporção Feminina (%)</option>
+                <option value="pct_jovens">Jovens 16-17 Anos (%)</option>
+                <option value="pct_idosos">Idosos 70+ Anos (%)</option>
+                <option value="pct_deficiencia">Eleitores com Deficiência (%)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- SVG Container -->
+          <div class="svg-map-container" id="svg-map-wrapper">
+            <!-- Dynamically populated via BrazilMap class -->
+          </div>
+
+          <!-- Legend Bar -->
+          <div class="map-legend">
+            <span>Menor Densidade</span>
+            <div class="legend-gradient-bar"></div>
+            <span>Maior Densidade</span>
+          </div>
+        </div>
+
+        <!-- Side Panel: Dossier & Persona Preview -->
+        <div class="dossier-panel">
+          
+          <!-- State Quick Dossier -->
+          <div class="dossier-card">
+            <h3 class="dossier-title">
+              <span id="dossier-state-name">Brasil (Nacional)</span>
+              <span class="badge-tag" style="background: rgba(16, 185, 129, 0.15); color: var(--emerald); border-color: rgba(16, 185, 129, 0.3);">
+                Dossiê Oficial
+              </span>
+            </h3>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                <span style="color: var(--text-muted);">Municípios Registrados:</span>
+                <strong id="dossier-municipios-count" style="font-family: var(--font-mono); color: var(--text-primary);">5.570</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                <span style="color: var(--text-muted);">Eleitores Quilombolas:</span>
+                <strong id="dossier-quilombolas" style="font-family: var(--font-mono); color: var(--amber);">188.371</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                <span style="color: var(--text-muted);">Solicitação Intérprete Libras:</span>
+                <strong id="dossier-libras" style="font-family: var(--font-mono); color: var(--cyan);">336.429</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                <span style="color: var(--text-muted);">Identidade Transgênero:</span>
+                <strong id="dossier-trans" style="font-family: var(--font-mono); color: var(--violet);">92.760</strong>
+              </div>
+            </div>
+
+            <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle); font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.45;">
+              <p>💡 <em>Dica: O eleitorado no exterior (ZZ) soma 918.876 cidadãos aptos em 186 cidades estrangeiras, habilitados ao voto presidencial.</em></p>
+            </div>
+          </div>
+
+          <!-- Regional Comparison Chart Mini Card -->
+          <div class="dossier-card">
+            <h3 class="dossier-title">
+              Distribuição por Macro-Região
+            </h3>
+            <div style="height: 220px; position: relative;">
+              <canvas id="canvas-regional"></canvas>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Pirâmide Demográfica -->
+    <div id="tab-pyramid" class="tab-content">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div class="chart-card-title">
+            <h3>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/>
+              </svg>
+              Pirâmide Demográfica do Eleitorado (Faixa Etária × Gênero)
+            </h3>
+            <p>Distribuição simétrica de mulheres e homens desde 16 anos até centenários (100 anos ou mais)</p>
+          </div>
+
+          <div class="pyramid-legend-bar">
+            <div class="pyramid-legend-item">
+              <span class="dot-male"></span> Homens (Esquerda)
+            </div>
+            <div class="pyramid-legend-item">
+              <span class="dot-female"></span> Mulheres (Direita)
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-canvas-wrapper" style="height: 520px;">
+          <canvas id="canvas-pyramid"></canvas>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-subtle);">
+          <div style="padding: 14px; border-radius: var(--radius-sm); background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <strong style="color: var(--amber); display: block; margin-bottom: 4px;">★ Voto Facultativo Jovem (16 e 17 anos)</strong>
+            <p style="font-size: 0.8125rem; color: var(--text-secondary);">
+              1.634.244 jovens alistados (1,03% do total). O primeiro contato com a cidadania e o voto voluntário.
+            </p>
+          </div>
+          <div style="padding: 14px; border-radius: var(--radius-sm); background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.2);">
+            <strong style="color: var(--cyan); display: block; margin-bottom: 4px;">★ O Núcleo Decisivo (35 a 49 anos)</strong>
+            <p style="font-size: 0.8125rem; color: var(--text-secondary);">
+              Mais de 46,5 milhões de eleitores concentram-se nesta faixa, representando a maior densidade ativa nas urnas.
+            </p>
+          </div>
+          <div style="padding: 14px; border-radius: var(--radius-sm); background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.2);">
+            <strong style="color: var(--violet); display: block; margin-bottom: 4px;">★ A Maturidade Eleitoral (70 anos ou mais)</strong>
+            <p style="font-size: 0.8125rem; color: var(--text-secondary);">
+              17.251.915 eleitores idosos (10,87%), com expressivos 298.239 eleitores com 100 anos ou mais de idade.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Escolaridade & Instrução -->
+    <div id="tab-education" class="tab-content">
+      <div class="charts-grid-2">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">
+              <h3>Grau de Escolaridade Declarado</h3>
+              <p>Total de eleitores aptos por nível educacional registrado no TSE</p>
+            </div>
+          </div>
+          <div class="chart-canvas-wrapper" style="height: 400px;">
+            <canvas id="canvas-education"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="chart-card-header">
+              <div class="chart-card-title">
+                <h3>Raio-X Educacional do Eleitorado</h3>
+                <p>Indicadores de qualificação e vulnerabilidade de ensino</p>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <div style="padding: 16px; border-radius: var(--radius-sm); background: rgba(6, 182, 212, 0.06); border: 1px solid rgba(6, 182, 212, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+                  <strong style="color: var(--cyan); font-size: 1.05rem;">Ensino Médio Completo (Maioria)</strong>
+                  <span style="font-family: var(--font-mono); font-weight: 700; color: var(--text-primary);">44,3M (27,9%)</span>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-secondary);">
+                  É a faixa com maior concentração absoluta de brasileiros habilitados a votar no país.
+                </p>
+              </div>
+
+              <div style="padding: 16px; border-radius: var(--radius-sm); background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+                  <strong style="color: var(--emerald); font-size: 1.05rem;">Superior Completo</strong>
+                  <span style="font-family: var(--font-mono); font-weight: 700; color: var(--text-primary);">18,0M (11,4%)</span>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-secondary);">
+                  Contingente universitário formado. Apresenta forte correlação regional (maior presença no Sudeste e Sul).
+                </p>
+              </div>
+
+              <div style="padding: 16px; border-radius: var(--radius-sm); background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+                  <strong style="color: var(--amber); font-size: 1.05rem;">Fundamental Incompleto</strong>
+                  <span style="font-family: var(--font-mono); font-weight: 700; color: var(--text-primary);">33,6M (21,2%)</span>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-secondary);">
+                  Mais de 1 a cada 5 eleitores ainda não concluiu o ciclo fundamental, evidenciando o passivo educacional.
+                </p>
+              </div>
+
+              <div style="padding: 16px; border-radius: var(--radius-sm); background: rgba(244, 63, 94, 0.06); border: 1px solid rgba(244, 63, 94, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+                  <strong style="color: var(--rose); font-size: 1.05rem;">Analfabetos</strong>
+                  <span style="font-family: var(--font-mono); font-weight: 700; color: var(--text-primary);">5,5M (3,5%)</span>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-secondary);">
+                  O voto de analfabetos é facultativo pela Constituição de 1988, garantindo cidadania plena às urnas.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: Diversidade & Cidadania -->
+    <div id="tab-diversity" class="tab-content">
+      <div class="charts-grid-2">
+        
+        <!-- Estado Civil -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">
+              <h3>Estado Civil do Eleitorado</h3>
+              <p>Solteiros representam mais de 60% dos eleitores cadastrados</p>
+            </div>
+          </div>
+          <div class="chart-canvas-wrapper" style="height: 340px;">
+            <canvas id="canvas-civil"></canvas>
+          </div>
+        </div>
+
+        <!-- Raça / Cor Autodeclarada -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">
+              <h3>Autodeclaração Étnico-Racial</h3>
+              <p>Distribuição entre os eleitores que já preencheram a autodeclaração</p>
+            </div>
+          </div>
+          <div class="chart-canvas-wrapper" style="height: 340px;">
+            <canvas id="canvas-race"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 5: Arquétipo do Eleitor (VIP Persona) -->
+    <div id="tab-archetype" class="tab-content">
+      <div style="max-width: 800px; margin: 0 auto;">
+        
+        <div class="archetype-badge-card">
+          <div class="archetype-header">
+            <div class="archetype-chip-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="4"/>
+                <path d="M7 10h10M7 14h6"/>
+              </svg>
+              <span>República Federativa do Brasil • Justiça Eleitoral</span>
+            </div>
+            <span class="badge-tag" style="background: rgba(6, 182, 212, 0.2); color: var(--cyan); border-color: rgba(6, 182, 212, 0.4);">
+              Perfil Mediano / Arquétipo Modal
+            </span>
+          </div>
+
+          <div class="archetype-body">
+            <h2 id="arch-headline" class="archetype-headline">Eleitora Mediana: Brasil</h2>
+            <p id="arch-summary" class="archetype-summary">
+              Mulher, 40 a 44 anos, solteira, com ensino médio completo e biometria concluída.
+            </p>
+          </div>
+
+          <div class="archetype-details-grid">
+            <div class="archetype-item">
+              <div class="archetype-item-label">Gênero Predominante</div>
+              <div id="arch-genero" class="archetype-item-val" style="color: var(--rose);">Mulher (52,8%)</div>
+            </div>
+            <div class="archetype-item">
+              <div class="archetype-item-label">Faixa Etária Modal</div>
+              <div id="arch-faixa" class="archetype-item-val" style="color: var(--cyan);">40 a 44 anos</div>
+            </div>
+            <div class="archetype-item">
+              <div class="archetype-item-label">Grau de Escolaridade Líder</div>
+              <div id="arch-escolaridade" class="archetype-item-val">Ensino Médio Completo</div>
+            </div>
+            <div class="archetype-item">
+              <div class="archetype-item-label">Estado Civil Mais Frequente</div>
+              <div id="arch-civil" class="archetype-item-val">Solteiro(a) (60,5%)</div>
+            </div>
+            <div class="archetype-item" style="grid-column: span 2;">
+              <div class="archetype-item-label">Situação Cadastral da Biometria</div>
+              <div id="arch-biometria" class="archetype-item-val" style="color: var(--emerald);">Biometria Concluída (89% de cobertura)</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; padding: 20px; border-radius: var(--radius-md); background: var(--bg-card); border: 1px solid var(--border-subtle); font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+          <h4 style="color: var(--text-primary); margin-bottom: 8px; font-family: var(--font-heading);">
+            Como o Arquétipo Eleitoral é Calculado?
+          </h4>
+          <p>
+            O arquétipo modal identifica a interseção das categorias mais frequentes (moda estatística) registradas pelo TSE para o território selecionado. Ao selecionar um estado específico no mapa ou no menu superior, o cartão ajusta-se imediatamente para refletir a persona daquele estado federativo.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 6: Top Municípios -->
+    <div id="tab-cities" class="tab-content">
+      <div class="table-card" id="table-container">
+        <!-- Rendered by MunicipalityTable class -->
+      </div>
+    </div>
+
+    <!-- TAB 7: Dossiê de Insights -->
+    <div id="tab-insights" class="tab-content">
+      <div class="insights-grid" id="insights-cards-container">
+        <!-- Populated via App class with the 6 strategic narratives -->
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div>
+        <strong>Perfil do Eleitorado 2026</strong> • Desenvolvido com dados públicos e oficiais do <strong>TSE (Tribunal Superior Eleitoral)</strong>
+      </div>
+      <div class="footer-links">
+        <a href="https://dadosabertos.tse.jus.br" target="_blank" rel="noopener noreferrer">Repositório TSE</a>
+        <span>•</span>
+        <span>Processamento via DuckDB</span>
+        <span>•</span>
+        <span style="color: var(--emerald);">Base Eleitoral 2026 Atualizada</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Local App Entrypoint -->
+  <script type="module" src="./js/app.js?v=2026.3"></script>
+</body>
+</html>
