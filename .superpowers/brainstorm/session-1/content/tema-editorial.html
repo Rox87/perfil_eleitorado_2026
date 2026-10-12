@@ -1,0 +1,110 @@
+<h2>Direção B Selecionada: Estilo Editorial & Data Journalism</h2>
+<p class="subtitle">Com o estilo editorial definido, precisamos definir a atmosfera base (tema) e a hierarquia das manchetes de dados:</p>
+
+<div class="options">
+  <div class="option selected" data-choice="dark-editorial" onclick="toggleSelect(this)">
+    <div class="letter">1</div>
+    <div class="content">
+      <h3>Dark Mineral Editorial (Padrão Escuro Sóbrio)</h3>
+      <p>Base em ardósia/grafite mineral profundo (#0f141c). Números tabulares nítidos em marfim, contrastes sem reflexos artificiais e paleta de dados elegante (azul petróleo, terracota suave, sage green). Mantém a imersão em monitores e salas de situação com total seriedade.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="light-paper" onclick="toggleSelect(this)">
+    <div class="letter">2</div>
+    <div class="content">
+      <h3>Light Paper Editorial (Padrão Claro "The Economist / FT")</h3>
+      <p>Base em off-white e papel neutro (#f8f9fa / #faf9f6), linhas finas de diagramação editorial, tipografia preta profunda e títulos imponentes. Remete diretamente às clássicas páginas de infografia impressa de dados eleitorais internacionais.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="dual-smart" onclick="toggleSelect(this)">
+    <div class="letter">3</div>
+    <div class="content">
+      <h3>Dual Elegante (Ambos refinados, alternador rápido no topo)</h3>
+      <p>Ambos os temas perfeitamente desenhados dentro do rigor editorial. O usuário pode alternar com um clique entre o modo escuro mineral e o modo claro jornalístico a qualquer momento.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 2rem;">
+  <div class="label">Comparativo de Atmosfera (Pré-visualização)</div>
+  <div class="split">
+    <!-- Preview Dark Mineral -->
+    <div class="mockup" style="background: #0f141c; border: 1px solid #242c3d; color: #f1f5f9;">
+      <div class="mockup-header" style="background: #161e2b; border-bottom: 1px solid #242c3d; color: #94a3b8; display: flex; justify-content: space-between;">
+        <span>MODO ESCURO MINERAL</span>
+        <span style="color: #60a5fa;">TSE • 2026</span>
+      </div>
+      <div class="mockup-body" style="padding: 1.25rem;">
+        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; font-weight: 600; margin-bottom: 0.4rem;">Panorama Eleitoral Nacional</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: #ffffff; font-family: Georgia, serif; line-height: 1.1;">158.745.463</div>
+        <div style="font-size: 0.85rem; color: #94a3b8; margin: 0.5rem 0 1rem; border-bottom: 1px solid #1e293b; padding-bottom: 0.5rem;">
+          Eleitores aptos a votar em 5.570 municípios e exterior
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div style="background: #141b26; padding: 0.75rem; border-radius: 6px; border-left: 3px solid #f43f5e;">
+            <div style="font-size: 0.7rem; color: #94a3b8;">Maioria Feminina</div>
+            <div style="font-size: 1.1rem; font-weight: 600; color: #f1f5f9;">52,84%</div>
+            <div style="font-size: 0.65rem; color: #64748b;">83,8M eleitoras</div>
+          </div>
+          <div style="background: #141b26; padding: 0.75rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <div style="font-size: 0.7rem; color: #94a3b8;">Biometria Apta</div>
+            <div style="font-size: 1.1rem; font-weight: 600; color: #f1f5f9;">89,01%</div>
+            <div style="font-size: 0.65rem; color: #64748b;">141,3M cadastrados</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Light Paper -->
+    <div class="mockup" style="background: #ffffff; border: 1px solid #e2e8f0; color: #0f172a;">
+      <div class="mockup-header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; color: #64748b; display: flex; justify-content: space-between;">
+        <span>MODO CLARO EDITORIAL</span>
+        <span style="color: #2563eb;">TSE • 2026</span>
+      </div>
+      <div class="mockup-body" style="padding: 1.25rem;">
+        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; font-weight: 600; margin-bottom: 0.4rem;">Panorama Eleitoral Nacional</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: #0f172a; font-family: Georgia, serif; line-height: 1.1;">158.745.463</div>
+        <div style="font-size: 0.85rem; color: #475569; margin: 0.5rem 0 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem;">
+          Eleitores aptos a votar em 5.570 municípios e exterior
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div style="background: #f8fafc; padding: 0.75rem; border-radius: 6px; border-left: 3px solid #e11d48; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+            <div style="font-size: 0.7rem; color: #64748b;">Maioria Feminina</div>
+            <div style="font-size: 1.1rem; font-weight: 600; color: #0f172a;">52,84%</div>
+            <div style="font-size: 0.65rem; color: #64748b;">83,8M eleitoras</div>
+          </div>
+          <div style="background: #f8fafc; padding: 0.75rem; border-radius: 6px; border-left: 3px solid #059669; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+            <div style="font-size: 0.7rem; color: #64748b;">Biometria Apta</div>
+            <div style="font-size: 1.1rem; font-weight: 600; color: #0f172a;">89,01%</div>
+            <div style="font-size: 0.65rem; color: #64748b;">141,3M cadastrados</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 1.5rem;">
+  <div class="label">Elementos do Design Editorial que serão aplicados:</div>
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Refinamentos no Layout Editorial</h4>
+      <ul>
+        <li><strong>Tipografia Híbrida:</strong> Cabeçalhos e números com peso editorial elegante combinados com sans-serif técnica para eixos e legendas</li>
+        <li><strong>Micro-anotações analíticas:</strong> Em vez de apenas números secos, pequenas frases contextuais de suporte (ex: "+6,1M de mulheres a mais que homens")</li>
+        <li><strong>Cartografia precisa:</strong> Mapa do Brasil com preenchimento coroplético sóbrio e escala contínua refinada</li>
+        <li><strong>Tabelas e Rankings:</strong> Top Municípios no formato de tabela analítica limpa, com linhas sutis e paginação ágil</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>O que será purgado</h4>
+      <ul>
+        <li>Orbes luminosos em <code>.ambient-glow</code></li>
+        <li>Efeitos de hover excessivamente saltados e brilhos de neon</li>
+        <li>Gradientes arco-íris saturados</li>
+      </ul>
+    </div>
+  </div>
+</div>
