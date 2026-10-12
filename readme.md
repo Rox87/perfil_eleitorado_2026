@@ -21,6 +21,8 @@ Dashboard analítico de alta precisão e jornalismo de dados sobre o perfil demo
 
 ---
 
+![alt text](public/dashboard.png)
+
 ## 📊 Visão Geral
 
 O projeto transforma os microdados brutos do TSE (mais de 11 milhões de linhas de registros eleitorais em CSV) em uma plataforma interativa, fluida e com rigor de data journalism. 
